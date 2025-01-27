@@ -53,6 +53,22 @@ async function deleteFavorite(gifUrl) {
     }
 }
 
+// פונקציה למחיקת GIF מועדף
+async function deleteFavorite(gifUrl) {
+    console.log("Deleting GIF:", gifUrl); // בדיקת URL למחיקה
+    const response = await fetch('/favorites', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ gifUrl }),
+    });
+    console.log("Delete response:", response); // תוצאה מהשרת
+    if (response.ok) {
+        alert("GIF deleted successfully!");
+    } else {
+        alert("Failed to delete GIF.");
+    }
+}
+
 
 // Save a GIF to favorites
 async function saveToFavorites(gifUrl) {
@@ -115,5 +131,4 @@ searchBtn.addEventListener('click', async () => {
 });
 
 // Show favorites when the page loads
-//nodemon server.js
 showFavorites();

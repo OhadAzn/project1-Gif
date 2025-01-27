@@ -1,27 +1,49 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
-const dotenv = require("dotenv");
 const fetch = require("node-fetch");
+const path = require("path");
+require('dotenv').config();  // טוען את קובץ ה-.env אם יש כזה
 
-dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// MongoDB setup
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+// שימוש במפתח GIPHY ו-URI של MongoDB שנמצאים בקובץ ה-.env או ערכים דיפולטיביים
+const GIPHY_API_KEY = process.env.GIPHY_API_KEY || "qSRe9GfEfwtU1DCX9XAYMfygYASbW0Fw";
+const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/gif_manager";  // תיקון הבעיה כאן
+
+console.log("Mongo URI:", MONGO_URI);
+// Route for the homepage (prt1.html)
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "pr1.html"));
+});
+
+// התחברות ל-MongoDB
+mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    console.log("MongoDB connected successfully.");
+  })
+  .catch((err) => {
+    console.error("Failed to connect to MongoDB:", err);
+  });
+
+// הגדרת מודל ה-GIF המועדף
 const favoriteSchema = new mongoose.Schema({ gifUrl: String });
 const Favorite = mongoose.model("Favorite", favoriteSchema);
 
 // Middleware
 app.use(bodyParser.json());
-app.use(express.static("public")); // Serve static files
+app.use(express.static("public")); // גישה לתיקיית public בה נמצאים קבצי הסטטיים
+
+// Route for the homepage (prt1.html)
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "prt1.html"));
+});
 
 // Route: Get random GIF
 app.get("/random-gif", async (req, res) => {
     try {
-        const apiKey = process.env.GIPHY_API_KEY;
-        const response = await fetch(`https://api.giphy.com/v1/gifs/random?api_key=${apiKey}`);
+        const response = await fetch(`https://api.giphy.com/v1/gifs/random?api_key=${GIPHY_API_KEY}`);
         const data = await response.json();
         res.json({ gifUrl: data.data.images.original.url });
     } catch (error) {
@@ -32,9 +54,8 @@ app.get("/random-gif", async (req, res) => {
 // Route: Search for a GIF
 app.get("/search-gif", async (req, res) => {
     try {
-        const apiKey = process.env.GIPHY_API_KEY;
         const query = req.query.q;
-        const response = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=${apiKey}&q=${query}&limit=1`);
+        const response = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${query}&limit=1`);
         const data = await response.json();
         const gifUrl = data.data[0]?.images.original.url;
         res.json({ gifUrl });
@@ -70,30 +91,18 @@ app.post("/favorites", async (req, res) => {
     }
 });
 
-// Start the server
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
-console.log("GIPHY API Key:", process.env.GIPHY_API_KEY);
-console.log("MongoDB URI:", process.env.MONGO_URI);
-console.log("Server Port:", process.env.PORT);
-
-
-// Route: Get the home page (this can be your index page or a simple message)
-app.get("/", (req, res) => {
-    res.sendFile(__dirname + "/public/pr1.html"); // אם הקובץ ב-public
-});
 // Route: Delete a favorite GIF
 app.delete('/favorites', async (req, res) => {
-    console.log("Delete request received:", req.body); // לבדוק את המידע שהתקבל
-    const { gifUrl } = req.body; // לשלוף את ה-URL מהבקשה
+    const { gifUrl } = req.body;
     try {
-        const result = await Favorite.deleteOne({ gifUrl }); // מחיקת ה-GIF מהמאגר
-        console.log("Delete result:", result); // הדפסת התוצאה
+        const result = await Favorite.deleteOne({ gifUrl });
         res.status(200).json({ message: "GIF deleted successfully" });
     } catch (error) {
-        console.error("Error deleting GIF:", error);
         res.status(500).json({ message: "Failed to delete GIF" });
     }
 });
 
+// Start the server
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});
