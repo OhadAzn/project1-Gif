@@ -69,10 +69,53 @@ button:hover {
     margin-top: 20px;
 }
 
-#favoritesContainer img {
-    width: 120px;
-    height: auto;
-    border: 2px solid #007bff;
+/* עיצוב קונטיינר המועדפים */
+#favoritesContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+/* עיצוב כל אלמנט מועדף */
+.favorite-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid #ddd;
+    padding: 10px;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.favorite-item:hover {
+    transform: scale(1.05);
+}
+
+/* עיצוב תמונת ה-GIF */
+.gif-image {
+    max-width: 150px;
+    max-height: 150px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+}
+
+/* עיצוב כפתור מחיקה */
+.delete-btn {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+
+.delete-btn:hover {
+    background-color: #e60000;
 }

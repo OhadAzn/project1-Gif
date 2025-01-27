@@ -83,3 +83,17 @@ console.log("Server Port:", process.env.PORT);
 app.get("/", (req, res) => {
     res.sendFile(__dirname + "/public/pr1.html"); // אם הקובץ ב-public
 });
+// Route: Delete a favorite GIF
+app.delete('/favorites', async (req, res) => {
+    console.log("Delete request received:", req.body); // לבדוק את המידע שהתקבל
+    const { gifUrl } = req.body; // לשלוף את ה-URL מהבקשה
+    try {
+        const result = await Favorite.deleteOne({ gifUrl }); // מחיקת ה-GIF מהמאגר
+        console.log("Delete result:", result); // הדפסת התוצאה
+        res.status(200).json({ message: "GIF deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting GIF:", error);
+        res.status(500).json({ message: "Failed to delete GIF" });
+    }
+});
+
